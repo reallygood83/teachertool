@@ -362,7 +362,10 @@
             <button id="clearBtn" title="지우기">전체 지우기</button>
             <button id="copyBtn" title="복사">복사</button>
           </div>
-          
+           <!-- 👉 이 위치에 추가 👈 -->
+  <div class="divider"></div>
+  <button id="youtubeEmbedBtn" title="유튜브 삽입">유튜브</button>
+</div>
           <div class="chalkboard">
             <div class="editor-container">
               <div id="chalkboardEditor" contenteditable="true" spellcheck="false"
@@ -827,7 +830,44 @@
         alert('복사에 실패했습니다.');
       }
     }
+// 👉 여기에 유튜브 삽입 함수를 추가 👈
+function embedYoutubeIntoChalkboard(youtubeUrl) {
+  let videoId = '';
+  const regexShort = /youtu\.be\/(.+)/;
+  const regexLong  = /v=([^&]+)/;
 
+  if (regexShort.test(youtubeUrl)) {
+    videoId = youtubeUrl.match(regexShort)[1].split(/[?&]/)[0];
+  } else if (regexLong.test(youtubeUrl)) {
+    videoId = youtubeUrl.match(regexLong)[1];
+  } else {
+    alert('유효한 유튜브 주소가 아닙니다.');
+    return;
+  }
+
+  const embedUrl = `https://www.youtube.com/embed/${videoId}`;
+  const iframeHtml = `
+    <iframe
+      width="400"
+      height="225"
+      src="${embedUrl}"
+      frameborder="0"
+      allowfullscreen
+      style="display:block; margin:10px auto;"
+    ></iframe>
+  `;
+
+  chalkboardEditor.focus();
+  document.execCommand('insertHTML', false, iframeHtml);
+}
+
+// 👉 여기에 유튜브 버튼 클릭 이벤트 추가 👈
+const youtubeEmbedBtn = document.getElementById('youtubeEmbedBtn');
+youtubeEmbedBtn.addEventListener('click', () => {
+  const url = prompt('유튜브 링크를 입력하세요.\n예) https://youtu.be/xxxxx');
+  if (!url) return;
+  embedYoutubeIntoChalkboard(url.trim());
+});
     // -----------------------------
     // 2. 오늘 날짜 및 시간표
     // -----------------------------
