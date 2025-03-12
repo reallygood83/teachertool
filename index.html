@@ -312,6 +312,27 @@
     .late {
       background-color: #fcf8e3;
     }
+    /* 유튜브 임베드 스타일 (고급스러운 디자인) */
+.youtube-embed {
+  position: relative;
+  padding-bottom: 56.25%; /* 16:9 비율 유지 */
+  height: 0;
+  overflow: hidden;
+  max-width: 100%;
+  margin: 15px auto;
+  border-radius: 10px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+  border: 2px solid #2a623d;
+}
+
+.youtube-embed iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 8px;
+}
   </style>
 </head>
 <body>
@@ -830,14 +851,13 @@
         alert('복사에 실패했습니다.');
       }
     }
-// 👉 여기에 유튜브 삽입 함수를 추가 👈
-function embedYoutubeIntoChalkboard(youtubeUrl) {
+function embedYoutubeIntoChalkboard(youtubeUrl, width, height) {
   let videoId = '';
   const regexShort = /youtu\.be\/(.+)/;
   const regexLong  = /v=([^&]+)/;
 
   if (regexShort.test(youtubeUrl)) {
-    videoId = youtubeUrl.match(regexShort)[1].split(/[?&]/)[0];
+    videoId = youtubeUrl.match(regexShort)[1].split('?')[0];
   } else if (regexLong.test(youtubeUrl)) {
     videoId = youtubeUrl.match(regexLong)[1];
   } else {
@@ -847,27 +867,30 @@ function embedYoutubeIntoChalkboard(youtubeUrl) {
 
   const embedUrl = `https://www.youtube.com/embed/${videoId}`;
   const iframeHtml = `
-    <iframe
-      width="400"
-      height="225"
-      src="${embedUrl}"
-      frameborder="0"
-      allowfullscreen
-      style="display:block; margin:10px auto;"
-    ></iframe>
+    <div class="youtube-embed" style="width:${width}; height:${height};">
+      <iframe src="${embedUrl}" frameborder="0" allowfullscreen></iframe>
+    </div>
   `;
 
-  chalkboardEditor.focus();
-  document.execCommand('insertHTML', false, iframeHtml);
+  chalkboardEditor.innerHTML += iframeHtml;
 }
 
-// 👉 여기에 유튜브 버튼 클릭 이벤트 추가 👈
+// 버튼 이벤트
 const youtubeEmbedBtn = document.getElementById('youtubeEmbedBtn');
 youtubeEmbedBtn.addEventListener('click', () => {
   const url = prompt('유튜브 링크를 입력하세요.\n예) https://youtu.be/xxxxx');
   if (!url) return;
-  embedYoutubeIntoChalkboard(url.trim());
+
+  // 사용자에게 크기 입력받기
+  let width = prompt('동영상의 너비를 입력하세요 (예: 600px 또는 100%)', '100%');
+  if (!width) width = '100%';
+  
+  let height = prompt('동영상의 높이를 입력하세요 (예: 300px 또는 auto)', 'auto');
+  if (!height) height = 'auto';
+
+  embedYoutubeIntoChalkboard(url.trim(), width, height);
 });
+
     // -----------------------------
     // 2. 오늘 날짜 및 시간표
     // -----------------------------
